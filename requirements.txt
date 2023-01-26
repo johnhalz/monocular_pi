@@ -1,0 +1,10 @@
+# IMU Interfacing
+adafruit-circuitpython-bno08x-rvc
+Adafruit-Blinka
+adafruit-circuitpython-busdevice
+RPi.GPIO
+pyserial
+
+# Camera Interfacing
+picamera[array]
+opencv-python
