@@ -6,5 +6,4 @@ RPi.GPIO
 pyserial
 
 # Camera Interfacing
-picamera[array]
 opencv-python
