@@ -4,6 +4,7 @@ Adafruit-Blinka
 adafruit-circuitpython-busdevice
 RPi.GPIO
 pyserial
+pose3d
 
 # Camera Interfacing
 opencv-python
