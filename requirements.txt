@@ -1,5 +1,6 @@
 # IMU Interfacing
 adafruit-circuitpython-bno08x-rvc
+adafruit-circuitpython-bno08x
 Adafruit-Blinka
 adafruit-circuitpython-busdevice
 RPi.GPIO
