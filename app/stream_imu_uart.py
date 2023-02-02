@@ -8,7 +8,7 @@ from adafruit_bno08x import (
 	)
 from adafruit_bno08x.uart import BNO08X_UART
 
-uart = serial.Serial("/dev/serial1", 9600)
+uart = serial.Serial("/dev/serial0", 115200)
 bno = BNO08X_UART(uart)
 
 bno.enable_feature(BNO_REPORT_ACCELEROMETER)
