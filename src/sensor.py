@@ -24,6 +24,7 @@ class Sensor:
         Method to disconnect to sensor
         '''
         try:
+            # TODO: Add check whether method exists in class
             self.connection.close()
             self.connected = False
         except Exception as exc:
@@ -52,9 +53,7 @@ class Sensor:
             self.data_queue.put((timestamp, data))
 
     def __read_data(self) -> tuple[int, Any]:
-        data = None
-        timestamp = time.perf_counter_ns()
-        return timestamp, data
+        pass
 
     def __process_data(self) -> None:
         pass
