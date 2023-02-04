@@ -1,6 +1,7 @@
 from serial import Serial
 from adafruit_bno08x_rvc import BNO08x_RVC
 from pose3d import ET, ER
+import logging
 
 from .sensor import Sensor
 
@@ -18,9 +19,7 @@ class IMU(Sensor):
         '''
         Connect to IMU.
         '''
-        self.connection = Serial(self.serial_port, self.baudrate)
-        self.read_source = BNO08x_RVC(self.connection)
-        self.connected = True
+            logging.info(f'{self.name}: Successfully connected.')
 
     def disconnect(self) -> None:
         '''
@@ -34,5 +33,4 @@ class IMU(Sensor):
         Read data from IMU
         '''
         yaw, pitch, roll, x_accel, y_accel, z_accel = self.read_source.heading
-        self.acceleration.from_vector([x_accel, y_accel, z_accel])
-        self.orientation.from_euler('zyx', [yaw, pitch, roll], degrees=True)
+        logging.debug('Got IMU data')

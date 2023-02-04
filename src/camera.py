@@ -1,3 +1,4 @@
+import logging
 import cv2
 from .sensor import Sensor, time, Any
 
@@ -11,6 +12,7 @@ class Camera(Sensor):
             self.read_source = cv2.VideoCapture(0)
             self.connection = self.read_source
             self.connected = True
+            logging.info(f'{self.name}: Successfully connected.')
         except Exception as exc:
             raise ConnectionError(f'Unable to connect to {self.name}.') from exc
 
@@ -20,4 +22,4 @@ class Camera(Sensor):
         if not success:
             return timestamp, None
 
-        return timestamp, data
+        logging.debug('Got camera data')
