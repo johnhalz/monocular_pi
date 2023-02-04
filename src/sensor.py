@@ -1,6 +1,7 @@
 import queue
 import logging
 import threading
+from time import perf_counter_ns
 from typing import Any
 
 class Sensor:
@@ -17,7 +18,10 @@ class Sensor:
         '''
         Method to connect to sensor
         '''
+        if self.connected:
             logging.debug(f'{self.name}: Already connected.')
+            return
+
         logging.debug(f'{self.name}: Connecting to sensor...')
         pass
 
@@ -25,9 +29,17 @@ class Sensor:
         '''
         Method to disconnect to sensor
         '''
+        if not self.connected:
             logging.debug(f'{self.name}: Already disconnected.')
+            return
+
         logging.debug(f'{self.name}: Disonnecting from sensor...')
         try:
+            if hasattr(self.connection, 'close'):
+                self.connection.close()
+            elif hasattr(self.connection, 'release'):
+                self.connection.release()
+            else:
                 raise AttributeError(f'{self.name}: Aborting - Unknown method to close connection.')
             self.connected = False
             logging.info(f'{self.name}: Successfully disconnected.')
@@ -52,7 +64,7 @@ class Sensor:
         self.streaming_thread.join()
         logging.info(f'{self.name}: Stream stopped.')
 
-    def __streaming_loop(self):
+    def __streaming_loop(self) -> None:
         '''
         Method to perform while loop calling __read_data
         '''
@@ -61,7 +73,7 @@ class Sensor:
             self.data_queue.put((timestamp, data))
 
     def __read_data(self) -> tuple[int, Any]:
-        pass
+        return perf_counter_ns(), None
 
     def __process_data(self) -> None:
         pass
