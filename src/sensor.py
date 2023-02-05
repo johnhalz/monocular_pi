@@ -69,10 +69,10 @@ class Sensor:
         Method to perform while loop calling __read_data
         '''
         while not self.stop_flag:
-            timestamp, data = self.__read_data()
+            timestamp, data = self._read_data()
             self.data_queue.put((timestamp, data))
 
-    def __read_data(self) -> tuple[int, Any]:
+    def _read_data(self) -> tuple[int, Any]:
         return perf_counter_ns(), None
 
     def __process_data(self) -> None:

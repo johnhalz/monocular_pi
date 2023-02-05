@@ -18,7 +18,7 @@ class Camera(Sensor):
         except Exception as exc:
             raise ConnectionError(f'Unable to connect to {self.name}.') from exc
 
-    def __read_data(self) -> tuple[int, np.ndarray | None]:
+    def _read_data(self) -> tuple[int, np.ndarray | None]:
         timestamp = perf_counter_ns()
         success, image = self.read_source.read()
         if not success:

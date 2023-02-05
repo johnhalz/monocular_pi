@@ -27,7 +27,7 @@ class IMU(Sensor):
         except Exception as exc:
             raise ConnectionError(f'Unable to connect to {self.name}.') from exc
 
-    def __read_data(self) -> tuple[int, tuple[ET, ER]]:
+    def _read_data(self) -> tuple[int, tuple[ET, ER]]:
         '''
         Read data from IMU
         '''
