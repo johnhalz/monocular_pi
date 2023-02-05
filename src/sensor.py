@@ -75,6 +75,3 @@ class Sensor:
     def _read_data(self) -> tuple[int, Any]:
         logging.warning(f'{self.name}: Not receiving any data')
         return perf_counter_ns(), None
-
-    def __process_data(self) -> None:
-        pass
