@@ -2,7 +2,7 @@ import logging
 from time import perf_counter_ns
 import cv2
 import numpy as np
-from .sensor import Sensor, Any
+from .sensor import Sensor
 
 class Camera(Sensor):
     def __init__(self, name: str) -> None:

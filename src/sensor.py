@@ -2,7 +2,6 @@ import queue
 import logging
 import threading
 from time import perf_counter_ns
-from typing import Any
 
 class Sensor:
     def __init__(self, name: str) -> None:
@@ -72,6 +71,6 @@ class Sensor:
             timestamp, data = self._read_data()
             self.data_queue.put((timestamp, data))
 
-    def _read_data(self) -> tuple[int, Any]:
+    def _read_data(self):
         logging.warning(f'{self.name}: Not receiving any data')
         return perf_counter_ns(), None
