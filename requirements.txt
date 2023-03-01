@@ -9,3 +9,8 @@ pose3d
 
 # Camera Interfacing
 opencv-python
+
+# Recording data
+mcap
+protobuf
+mcap-protobuf-support

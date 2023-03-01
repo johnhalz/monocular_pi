@@ -1,1 +1,1 @@
-sudo apt install -y ffmpeg libsm6 libxext6 libcap-dev
+sudo apt install -y ffmpeg libsm6 libxext6 libcap-dev protobuf-compiler
