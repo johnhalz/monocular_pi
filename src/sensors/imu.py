@@ -1,4 +1,3 @@
-from time import perf_counter_ns
 from serial import Serial
 from adafruit_bno08x_rvc import BNO08x_RVC
 from pose3d import ET, ER
@@ -8,11 +7,13 @@ from .sensor import Sensor
 
 class IMU(Sensor):
     def __init__(self, name: str,
+                       sensor_type: str = 'imu',
                        serial_port: str = '/dev/serial0',
                        baudrate: int = 115200) -> None:
-        super().__init__(name)
+        super().__init__(name, sensor_type)
         self.serial_port = serial_port
         self.baudrate = baudrate
+        self.orientation = ER(name='IMU Orientation')
 
     def connect(self) -> None:
         '''
@@ -31,12 +32,10 @@ class IMU(Sensor):
         '''
         Read data from IMU
         '''
-        timestamp = perf_counter_ns()
-        acceleration = ET(name='IMU Acceleration')
-        orientation = ER(name='IMU Orientation')
+        self.timestamp.GetCurrentTime()
         yaw, pitch, roll, x_accel, y_accel, z_accel = self.read_source.heading
         logging.debug('Got IMU data')
-        acceleration.from_vector([x_accel, y_accel, z_accel])
-        orientation.from_euler('zyx', [yaw, pitch, roll], degrees=True)
+        self.orientation.from_euler('zyx', [yaw, pitch, roll], degrees=True)
+        quat = self.orientation.as_quat()
 
-        return timestamp, (acceleration, orientation)
+        return self.timestamp, (x_accel, y_accel, z_accel, quat[0], quat[1], quat[2], quat[3])

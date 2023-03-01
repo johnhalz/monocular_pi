@@ -1,12 +1,11 @@
 import logging
-from time import perf_counter_ns
 import cv2
 import numpy as np
 from .sensor import Sensor
 
 class Camera(Sensor):
-    def __init__(self, name: str) -> None:
-        super().__init__(name)
+    def __init__(self, name: str, sensor_type: str = 'camera') -> None:
+        super().__init__(name, sensor_type)
 
     def connect(self) -> None:
         super().connect()
@@ -19,10 +18,10 @@ class Camera(Sensor):
             raise ConnectionError(f'Unable to connect to {self.name}.') from exc
 
     def _read_data(self) -> tuple[int, np.ndarray | None]:
-        timestamp = perf_counter_ns()
+        self.timestamp.GetCurrentTime()
         success, image = self.read_source.read()
         if not success:
-            return timestamp, None
+            return self.timestamp, None
 
         logging.debug('Got camera data')
-        return timestamp, image
+        return self.timestamp, image

@@ -1,17 +1,19 @@
 import queue
 import logging
 import threading
-from time import perf_counter_ns
+from google.protobuf.timestamp_pb2 import Timestamp
 
 class Sensor:
-    def __init__(self, name: str) -> None:
+    def __init__(self, name: str, sensor_type: str) -> None:
         self.name = name
+        self.sensor_type = sensor_type
         self.connection = None
         self.read_source = None
         self.connected = False
         self.data_queue = queue.Queue()
         self.stop_flag = False
         self.streaming_thread = None
+        self.timestamp = Timestamp()
 
     def connect(self) -> None:
         '''
@@ -22,7 +24,6 @@ class Sensor:
             return
 
         logging.debug(f'{self.name}: Connecting to sensor...')
-        pass
 
     def disconnect(self) -> None:
         '''
@@ -60,6 +61,7 @@ class Sensor:
         '''
         logging.debug(f'{self.name}: Stopping stream...')
         self.stop_flag = True
+        self.data_queue.put(None)
         self.streaming_thread.join()
         logging.info(f'{self.name}: Stream stopped.')
 
@@ -73,4 +75,5 @@ class Sensor:
 
     def _read_data(self):
         logging.warning(f'{self.name}: Not receiving any data')
-        return perf_counter_ns(), None
+        self.timestamp.GetCurrentTime()
+        return self.timestamp, None

@@ -5,7 +5,7 @@ import logging
 
 path.append(Path(__file__).parents[1].as_posix())
 
-from src import Camera, IMU
+from src.sensors import IMU, Camera
 
 def main():
     logging.basicConfig(
