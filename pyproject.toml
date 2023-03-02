@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "monocular-pi"
+version = "0.1.0"
+description = "Monocular vSLAM on Raspberry Pi"
+authors = ["John Halazonetis <john.halazonetis@icloud.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.8"
+opencv-python = "^4.7.0.72"
+mcap = "^1.0.1"
+mcap-protobuf-support = "^0.0.10"
+protobuf = "^4.22.0"
+pose3d = "^2.1.0"
+pyserial = "^3.5"
+
+[tool.poetry.group.dev.dependencies]
+"RPi.GPIO" = "^0.7.1"
+adafruit-circuitpython-busdevice = "^5.2.3"
+Adafruit-Blinka = "^8.15.2"
+adafruit-circuitpython-bno08x = "^1.1.9"
+adafruit-circuitpython-bno08x-rvc = "^1.0.13"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
