@@ -1,4 +1,3 @@
-import asyncio
 import logging
 from google.protobuf.timestamp_pb2 import Timestamp
 
@@ -12,7 +11,6 @@ class ASensor:
         self.connected = False
         self.timestamp = Timestamp()
         self.subscribers = []
-        self.data_buffer = []
 
     async def connect(self) -> None:
         '''Connect to sensor'''
@@ -57,7 +55,6 @@ class ASensor:
         logging.info(f'{self.name}: Stream started.')
         while self.is_reading:
             result = await self._read_data()
-            self.data_buffer.append(result)
 
             for subscriber in self.subscribers:
                 subscriber.receive_data(result)
