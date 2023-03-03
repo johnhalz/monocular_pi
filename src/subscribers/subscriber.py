@@ -1,21 +1,10 @@
-import asyncio
 import logging
-import queue
-from google.protobuf.timestamp_pb2 import Timestamp
 
 class Subscriber:
-    def __init__(self, name: str) -> None:
+    def __init__(self, name: str, require_pb_message: bool = False) -> None:
         self.name = name
-        self.is_receiving = False
-        self.data_queue = queue.Queue()
+        self.require_pb_message = require_pb_message
 
-    def receive_data(self):
-        pass
-
-    async def start(self):
-        '''Start receiving data from source(s).'''
-        pass
-
-    def stop(self):
-        '''Stop receiving data from source(s).'''
-        self.is_receiving = False
+    async def receive_data(self, data):
+        '''Receive data from publishers.'''
+        raise NotImplementedError
