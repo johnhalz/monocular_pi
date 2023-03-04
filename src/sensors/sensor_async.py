@@ -55,9 +55,12 @@ class ASensor:
         logging.info(f'{self.name}: Stream started.')
         while self.is_reading:
             result = await self._read_data()
+            if result[1] is not None:
+                logging.debug(f'{self.name}: Received data from sensor')
 
-            for subscriber in self.subscribers:
-                subscriber.receive_data(result)
+            else:
+                for subscriber in self.subscribers:
+                    subscriber.receive_data(result)
 
     def stop_stream(self) -> None:
         '''Stop reading data from sensor'''
