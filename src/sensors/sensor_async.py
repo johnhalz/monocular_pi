@@ -40,9 +40,12 @@ class ASensor:
             raise ConnectionError(f'{self.name}: Unable to close connection.') from exc
 
     async def _read_data(self):
-        logging.warning(f'{self.name}: Not receiving any data')
-        self.timestamp.GetCurrentTime()
-        return self.timestamp, None
+        '''
+        Method to read data from sensor at a single point in time.
+
+        Note that this method is meant ot be overwritten be the child class.
+        '''
+        raise NotImplementedError
 
     async def start_stream(self) -> None:
         '''Start reading data from sensor.'''
