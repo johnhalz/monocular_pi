@@ -1,10 +1,15 @@
 import logging
+import asyncio
 
 class Subscriber:
-    def __init__(self, name: str, require_pb_message: bool = False) -> None:
-        self.name = name
-        self.require_pb_message = require_pb_message
+    def __init__(self):
+        self.queue = asyncio.Queue()
 
-    async def receive_data(self, data):
-        '''Receive data from publishers.'''
-        raise NotImplementedError
+    async def process_data(self, data):
+        # do something with data, e.g. make a network request or write to a file
+        await asyncio.sleep(1)
+        logging.info(f"Processed data: {data}")
+
+    async def get_data(self):
+        data = await self.queue.get()
+        await self.process_data(data)
