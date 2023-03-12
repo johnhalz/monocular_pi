@@ -20,10 +20,10 @@ class IOElement:
     def __init__(self, element_type: IOElementType|int = IOElementType.PIPELINE_IO):
         self.name = None
         self.input_queue = Queue()
-        self.output_queue = Queue()
         self.is_running = False
         self.type = element_type
         self.run_requirements = {}
+        self.subscribers = []
 
     async def process_data(self, *args, **kwargs):
         '''
@@ -31,6 +31,11 @@ class IOElement:
         child class's implementation.
         '''
         raise NotImplementedError("This function hasn't been implemented.")
+
+    async def send_to_subscribers(self, data) -> None:
+        '''Send output data to subscribers'''
+        for subscriber in self.subscribers:
+            subscriber.input_queue.put(data)
 
     async def run_loop(self):
         '''Run loop for IOElement'''
@@ -46,7 +51,7 @@ class IOElement:
         if self.type is IOElementType.PIPELINE_INPUT:
             while self.is_running:
                 processed_data = await self.process_data()
-                await self.output_queue.put(processed_data)
+                await self.send_to_subscribers(processed_data)
         elif self.type is IOElementType.PIPELINE_OUTPUT:
             while self.is_running:
                 data = await self.input_queue.get()
@@ -55,10 +60,10 @@ class IOElement:
             while self.is_running:
                 data = await self.input_queue.get()
                 processed_data = await self.process_data(data)
-                await self.output_queue.put(processed_data)
+                await self.send_to_subscribers(processed_data)
 
-    def stop_stream(self) -> None:
-        '''Stop running stream loop.'''
+    def stop_run(self) -> None:
+        '''Stop running loop.'''
         logging.info(f'{self.name}: Stopping stream...')
         self.is_running = False
         logging.info(f'{self.name}: Running stopped.')
@@ -66,6 +71,10 @@ class IOElement:
     def add_run_requirement(self, name: str):
         '''Add requirement to start run_loop.'''
         self.run_requirements[name] = False
+
+    def add_subscriber(self, subscriber):
+        '''Add new subscriber to sensor.'''
+        self.subscribers.append(subscriber)
 
     def _any_invalid_requirements(self) -> bool:
         '''Check if any elements of the run_requirements are false.'''
