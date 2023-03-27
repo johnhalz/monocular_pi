@@ -1,13 +1,9 @@
 from time import sleep
-from sys import path
 from pathlib import Path
 import logging
 
-path.append(Path(__file__).parents[1].as_posix())
-
 from src.sensors import IMU, Camera
-from src.recorder import McapRecorder
-from src.log_handler import LogHandler
+from src.io_element import Recorder, LogHandler
 
 def main():
     # Create logger
@@ -21,17 +17,17 @@ def main():
     imu = IMU(name='bno085')
 
     # Create recorder instance and add data queues
-    recorder = McapRecorder(filepath=Path.home()/'data/test.mcap', with_date=True)
-    recorder.add_sensor(camera)
-    recorder.add_sensor(imu)
-    recorder.add_subscription(name='log', subscription_type='logger', data_queue=log_handler.data_queue)
+    recorder = Recorder(filepath=Path.home()/'data/test.mcap', with_date=True)
+    camera.add_subscriber(recorder)
+    imu.add_subscriber(recorder)
+    log_handler.add_subscriber(recorder)
 
     # Connect to sensors
     camera.connect()
     imu.connect()
 
     # Start streaming data from sensors
-    recorder.start()
+    recorder.start_stream()
     camera.start_stream()
     imu.start_stream()
 
@@ -40,7 +36,7 @@ def main():
     # Stop stream from sensors
     camera.stop_stream()
     imu.stop_stream()
-    recorder.join()
+    recorder.stop_stream()
 
     # Disconnect from sensors
     camera.disconnect()
