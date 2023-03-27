@@ -1,16 +1,21 @@
-from serial import Serial
-from adafruit_bno08x_rvc import BNO08x_RVC
-from pose3d import ET, ER
+'''IMU sensor module'''
 import logging
+from serial import Serial
 
-from .sensor import Sensor
+import numpy as np
+from pose3d import ER
+from adafruit_bno08x_rvc import BNO08x_RVC
+from io_element import Sensor, Message
+from messages import IMUMessage
 
+# pylint: disable=too-few-public-methods
 class IMU(Sensor):
+    '''IMU sensor class'''
     def __init__(self, name: str,
-                       sensor_type: str = 'imu',
+                       topic: str = 'imu',
                        serial_port: str = '/dev/serial0',
                        baudrate: int = 115200) -> None:
-        super().__init__(name, sensor_type)
+        super().__init__(name, topic)
         self.serial_port = serial_port
         self.baudrate = baudrate
         self.orientation = ER(name='IMU Orientation')
@@ -26,16 +31,41 @@ class IMU(Sensor):
             self.connected = True
             logging.info(f'{self.name}: Successfully connected.')
         except Exception as exc:
-            raise ConnectionError(f'Unable to connect to {self.name}.') from exc
+            raise ConnectionError(f'{self.name}: Unable to connect.') from exc
 
-    def _read_data(self) -> tuple[int, tuple[ET, ER]]:
+    def _stream_task(self) -> Message:
         '''
-        Read data from IMU
+        Read data from IMU, take timestamp and create protobuf message
+
+        Returns
+        -------
+        -`Message`: IMUMessage (protobuf message)
         '''
         self.timestamp.GetCurrentTime()
         yaw, pitch, roll, x_accel, y_accel, z_accel = self.read_source.heading
-        logging.debug('Got IMU data')
+        logging.debug(f'{self.name}: Got IMU data')
         self.orientation.from_euler('zyx', [yaw, pitch, roll], degrees=True)
-        quat = self.orientation.as_quat()
+        return self._compile_message(acceleration=np.array([x_accel, y_accel, z_accel]))
 
-        return self.timestamp, (x_accel, y_accel, z_accel, quat[0], quat[1], quat[2], quat[3])
+    def _compile_message(self, acceleration: np.ndarray) -> IMUMessage:
+        '''
+        Compile data into protobuffer message
+
+        Parameters
+        ----------
+        - `acceleration` (`np.ndarray`): Acceleration data
+
+        Returns
+        -------
+        -`IMUMessage`: IMUMessage (protobuf message)
+        '''
+        quaternion = self.orientation.as_quat()
+        return IMUMessage(
+            accel_x = acceleration[0],
+            accel_y = acceleration[1],
+            accel_z = acceleration[2],
+            orient_w = quaternion[0],
+            orient_i = quaternion[1],
+            orient_j = quaternion[2],
+            orient_k = quaternion[3]
+        )
