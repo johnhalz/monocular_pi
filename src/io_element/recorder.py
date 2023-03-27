@@ -12,7 +12,7 @@ class Recorder(IOElement):
     '''
     Recorder class - record incoming messages to mcap file
     '''
-    def __init__(self, name: str, filepath: Path,
+    def __init__(self, filepath: Path, name: str = 'MCAP Recorder',
                  topic: str = None, with_date: bool = True) -> None:
         super().__init__(name, topic)
 
