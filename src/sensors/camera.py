@@ -1,5 +1,4 @@
 '''Camera sensor module'''
-
 import logging
 
 import cv2
