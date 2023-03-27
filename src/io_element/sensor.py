@@ -10,6 +10,7 @@ class Sensor(IOElement):
     def __init__(self, name: str, topic: str) -> None:
         super().__init__(name, topic)
         self.connection = None
+        self.read_source = None
         self.connected: bool = False
 
     def connect(self) -> None:
@@ -35,7 +36,7 @@ class Sensor(IOElement):
             else:
                 raise AttributeError(
                     f'{self.name}: Aborting - Unknown method to close connection.'
-                    )
+                )
 
             self.connected = False
             logging.info(f'{self.name}: Successfully disconnected.')
@@ -43,7 +44,7 @@ class Sensor(IOElement):
         except Exception as exc:
             raise ConnectionError(f'{self.name}: Unable to close connection.') from exc
 
-    def _stream_task(self) -> tuple(str, Message|None):
+    def _stream_task(self) -> Message|None:
         '''Method of the task to perform during the datastream process.'''
         raise NotImplementedError('Please add this function to your child class.')
 
