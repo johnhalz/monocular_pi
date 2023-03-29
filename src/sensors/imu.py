@@ -5,6 +5,11 @@ from serial import Serial
 import numpy as np
 from pose3d import ER
 from adafruit_bno08x_rvc import BNO08x_RVC
+
+from pathlib import Path
+from sys import path
+path.append(Path(__file__).parents[1].as_posix())
+
 from io_element import Sensor, Message
 from messages import IMUMessage
 

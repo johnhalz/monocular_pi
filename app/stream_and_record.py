@@ -2,6 +2,9 @@
 from time import sleep
 from pathlib import Path
 import logging
+from sys import path
+
+path.append(Path(__file__).parents[1].as_posix())
 
 from src.sensors import IMU, Camera
 from src.io_element import Recorder, LogHandler
