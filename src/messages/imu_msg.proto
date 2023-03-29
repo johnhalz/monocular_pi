@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+message IMUMessage {
+  google.protobuf.Timestamp timestamp = 1;
+  float accel_x = 2;
+  float accel_y = 3;
+  float accel_z = 4;
+  float orient_w = 5;
+  float orient_i = 6;
+  float orient_j = 7;
+  float orient_k = 8;
+}
