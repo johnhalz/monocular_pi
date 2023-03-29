@@ -1,3 +1,4 @@
+'''Stream and record app'''
 from time import sleep
 from pathlib import Path
 import logging
@@ -5,6 +6,7 @@ import logging
 from src.sensors import IMU, Camera
 from src.io_element import Recorder, LogHandler
 
+# pylint: disable=missing-function-docstring
 def main():
     # Create logger
     log_handler = LogHandler()
