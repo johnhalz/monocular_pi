@@ -41,7 +41,11 @@ class IOElement:
         while not self.stop_flag:
             message = self._stream_task()
             if message is not None:
-                self._publish_to_subscribers(message)
+                if isinstance(message, list):
+                    for msg in message:
+                        self._publish_to_subscribers(msg)
+                elif isinstance(message, Message):
+                    self._publish_to_subscribers(message)
 
     def _stream_task(self) -> Message|None:
         '''Method of the task to perform during the datastream process.'''
