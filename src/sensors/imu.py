@@ -38,7 +38,7 @@ class IMU(Sensor):
         except Exception as exc:
             raise ConnectionError(f'{self.name}: Unable to connect.') from exc
 
-    def _stream_task(self) -> Message:
+    def _stream_task(self) -> list(Message):
         '''
         Read data from IMU, take timestamp and create protobuf message
 
@@ -54,6 +54,7 @@ class IMU(Sensor):
         acc_msg = self._compile_acceleration_data(
             acceleration=np.array([x_accel, y_accel, z_accel])
         )
+        return [acc_msg, quat_msg]
 
     def _compile_acceleration_data(self, acceleration: np.ndarray) -> Vector3:
         '''
