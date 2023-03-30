@@ -44,7 +44,7 @@ class Sensor(IOElement):
         except Exception as exc:
             raise ConnectionError(f'{self.name}: Unable to close connection.') from exc
 
-    def _stream_task(self) -> Message|None:
+    def _stream_task(self) -> list(Message)|Message|None:
         '''Method of the task to perform during the datastream process.'''
         raise NotImplementedError('Please add this function to your child class.')
 

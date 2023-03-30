@@ -47,7 +47,7 @@ class IOElement:
                 elif isinstance(message, Message):
                     self._publish_to_subscribers(message)
 
-    def _stream_task(self) -> Message|None:
+    def _stream_task(self) -> list(Message)|Message|None:
         '''Method of the task to perform during the datastream process.'''
         raise NotImplementedError('Please add this function to your child class.')
 
