@@ -11,7 +11,7 @@ from sys import path
 path.append(Path(__file__).parents[1].as_posix())
 
 from io_element import Sensor, Message
-from messages import IMUMessage
+from messages import Vector3, Quaternion
 
 # pylint: disable=too-few-public-methods
 class IMU(Sensor):
@@ -50,27 +50,43 @@ class IMU(Sensor):
         yaw, pitch, roll, x_accel, y_accel, z_accel = self.read_source.heading
         logging.debug(f'{self.name}: Got IMU data')
         self.orientation.from_euler('zyx', [yaw, pitch, roll], degrees=True)
-        return self._compile_message(acceleration=np.array([x_accel, y_accel, z_accel]))
+        quat_msg = self._compile_quaternion_data()
+        acc_msg = self._compile_acceleration_data(
+            acceleration=np.array([x_accel, y_accel, z_accel])
+        )
 
-    def _compile_message(self, acceleration: np.ndarray) -> IMUMessage:
+    def _compile_acceleration_data(self, acceleration: np.ndarray) -> Vector3:
         '''
-        Compile data into protobuffer message
+        Compile acceleration data to timestamped Vector3 protobuf message.
 
         Parameters
         ----------
-        - `acceleration` (`np.ndarray`): Acceleration data
+        - `acceleration` (`np.ndarray`): Acceleration array
 
         Returns
         -------
-        -`IMUMessage`: IMUMessage (protobuf message)
+        - `Vector3`: Vector3 protobuf message instance
         '''
-        quaternion = self.orientation.as_quat()
-        return IMUMessage(
-            accel_x = acceleration[0],
-            accel_y = acceleration[1],
-            accel_z = acceleration[2],
-            orient_w = quaternion[0],
-            orient_i = quaternion[1],
-            orient_j = quaternion[2],
-            orient_k = quaternion[3]
+        return Vector3(
+            x=acceleration[0],
+            y=acceleration[1],
+            z=acceleration[2],
+            timestamp=self.timestamp.ToNanoseconds()
+        )
+
+    def _compile_quaternion_data(self) -> Quaternion:
+        '''
+        Compile orientation data to timestamped Quaternion protobuf message.
+
+        Returns
+        -------
+        - `Quaternion`: Quaternion protobuf message instance
+        '''
+        quat = self.orientation.as_quat()
+        return Quaternion(
+            w=quat[0],
+            x=quat[1],
+            y=quat[2],
+            z=quat[3],
+            timestamp=self.timestamp.ToNanoseconds()
         )
