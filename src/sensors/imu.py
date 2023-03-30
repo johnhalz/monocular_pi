@@ -38,7 +38,7 @@ class IMU(Sensor):
         except Exception as exc:
             raise ConnectionError(f'{self.name}: Unable to connect.') from exc
 
-    def _stream_task(self) -> list(Message):
+    def _stream_task(self) -> dict[str, Message]:
         '''
         Read data from IMU, take timestamp and create protobuf message
 
@@ -54,7 +54,7 @@ class IMU(Sensor):
         acc_msg = self._compile_acceleration_data(
             acceleration=np.array([x_accel, y_accel, z_accel])
         )
-        return [acc_msg, quat_msg]
+        return {'accel': acc_msg, 'orientation': quat_msg}
 
     def _compile_acceleration_data(self, acceleration: np.ndarray) -> Vector3:
         '''
@@ -68,12 +68,12 @@ class IMU(Sensor):
         -------
         - `Vector3`: Vector3 protobuf message instance
         '''
-        return Vector3(
-            x=acceleration[0],
-            y=acceleration[1],
-            z=acceleration[2],
-            timestamp=self.timestamp.ToNanoseconds()
-        )
+        message = Vector3()
+        message.x = acceleration[0]
+        message.y = acceleration[1]
+        message.z = acceleration[2]
+        message.timestamp.CopyFrom(self.timestamp)
+        return message
 
     def _compile_quaternion_data(self) -> Quaternion:
         '''
@@ -84,10 +84,10 @@ class IMU(Sensor):
         - `Quaternion`: Quaternion protobuf message instance
         '''
         quat = self.orientation.as_quat()
-        return Quaternion(
-            w=quat[0],
-            x=quat[1],
-            y=quat[2],
-            z=quat[3],
-            timestamp=self.timestamp.ToNanoseconds()
-        )
+        message = Quaternion()
+        message.w = quat[0]
+        message.x = quat[1]
+        message.y = quat[2]
+        message.z = quat[3]
+        message.timestamp.CopyFrom(self.timestamp)
+        return message
