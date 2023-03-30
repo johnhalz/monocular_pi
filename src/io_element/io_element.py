@@ -13,9 +13,10 @@ class IOElement:
     process the incoming data and publish the processed data
     to any subscriber elements.
     '''
-    def __init__(self, name: str, topic: str) -> None:
+    def __init__(self, name: str, topic: str, async_loop: bool = False) -> None:
         self.name = name
         self.topic = topic
+        self.async_loop = async_loop
         self.input_queue = Queue()
         self.stop_flag = False
         self.streaming_thread = None
@@ -25,7 +26,11 @@ class IOElement:
     def start_stream(self) -> None:
         '''Method to start data stream.'''
         logging.debug(f'{self.name}: Starting data stream...')
-        self.streaming_thread = threading.Thread(target=self._streaming_loop)
+        if self.async_loop:
+            self.streaming_thread = threading.Thread(target=self._a_streaming_loop)
+        else:
+            self.streaming_thread = threading.Thread(target=self._streaming_loop)
+
         self.streaming_thread.start()
         logging.info(f'{self.name}: Data stream started.')
 
@@ -37,6 +42,13 @@ class IOElement:
         logging.info(f'{self.name}: Data stream stopped.')
 
     def _streaming_loop(self) -> None:
+        '''Method to perform while loop calling _stream_task() method'''
+        while not self.stop_flag:
+            message = self._stream_task()
+            if message is not None:
+                self._publish_to_subscribers(message)
+
+    async def _a_streaming_loop(self) -> None:
         '''Method to perform while loop calling _stream_task() method'''
         while not self.stop_flag:
             message = self._stream_task()
