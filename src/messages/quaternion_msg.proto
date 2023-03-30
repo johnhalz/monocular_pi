@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+package foxglove;
+
+// A [quaternion](https://eater.net/quaternions) representing a rotation in 3D space
+message Quaternion {
+  // x value
+  double x = 1;
+
+  // y value
+  double y = 2;
+
+  // z value
+  double z = 3;
+
+  // w value
+  double w = 4;
+
+  // Timestamp
+  google.protobuf.Timestamp timestamp = 5;
+}
