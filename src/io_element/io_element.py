@@ -1,5 +1,6 @@
 '''IOElement class module'''
 import logging
+from typing import Dict, Union
 import threading
 from queue import Queue
 
@@ -47,7 +48,7 @@ class IOElement:
                 elif isinstance(message, Message):
                     self._publish_to_subscribers(message)
 
-    def _stream_task(self) -> dict[str, Message]|Message|None:
+    def _stream_task(self) -> Union[Dict[str, Message], Message, None]:
         '''Method of the task to perform during the datastream process.'''
         raise NotImplementedError('Please add this function to your child class.')
 

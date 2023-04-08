@@ -1,5 +1,6 @@
 '''IMU sensor module'''
 import logging
+from typing import Dict
 from serial import Serial
 
 import numpy as np
@@ -38,7 +39,7 @@ class IMU(Sensor):
         except Exception as exc:
             raise ConnectionError(f'{self.name}: Unable to connect.') from exc
 
-    def _stream_task(self) -> dict[str, Message]:
+    def _stream_task(self) -> Dict[str, Message]:
         '''
         Read data from IMU, take timestamp and create protobuf message
 
