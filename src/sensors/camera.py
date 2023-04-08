@@ -1,5 +1,6 @@
 '''Camera sensor module'''
 import logging
+from typing import Dict
 
 import cv2
 import numpy as np
@@ -22,7 +23,7 @@ class Camera(Sensor):
         except Exception as exc:
             raise ConnectionError(f'{self.name}: Unable to connect.') from exc
 
-    def _stream_task(self) -> Message:
+    def _stream_task(self) -> Dict[str, Message]:
         '''
         Read data from camera, take timestamp and create protobuf message
 
@@ -37,7 +38,7 @@ class Camera(Sensor):
 
         logging.debug(f'{self.name}: Got camera data')
 
-        return self._compile_message(image)
+        return {'image': self._compile_message(image)}
 
     def _compile_message(self, img_data: np.ndarray, encoding: str = 'jpeg') -> CompressedImage:
         '''
