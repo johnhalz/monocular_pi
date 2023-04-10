@@ -1,11 +1,8 @@
 '''Image feature detector class module'''
-import logging
 from typing import Dict, Union, List
 
 import numpy as np
 import cv2
-from google.protobuf.message import Message
-from google.protobuf.timestamp_pb2 import Timestamp
 
 from messages.img_annotation_msg import ImageAnnotation
 from messages.points_annotation_msg import PointsAnnotation
@@ -33,33 +30,14 @@ class ImgFeatureDetector(IOElement):
 
         # Extract image from message
         image = cv2.imdecode(np.frombuffer(message.data, np.uint8), cv2.IMREAD_COLOR)
+        img_timestamp = message.timestamp
 
-        # Convert image to grayscale
-        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        keypoints = self.__detect_features(image)
 
-        # Detect features on grayscale image
-        keypoints = self.detector.detect(gray, None)
+        if keypoints is None:
+            return None
 
-        # Create protobuf message for newly found features
-        img_annotation_msg = ImageAnnotation()
-        feature_point_color = Color(r=1., g=0., b=0., a=0.)
-        points = []
-        for keypoint in keypoints:
-            points.append(Point2(x=keypoint.pt[0], y=keypoint.pt[1]))
-
-        points_annotation = PointsAnnotation()
-        points_annotation.timestamp = message.timestamp
-        points_annotation.type = 'POINTS'
-        points_annotation.points = points
-        points_annotation.outline_color = feature_point_color
-        points_annotation.outline_colors = [feature_point_color] * len(points)
-        points_annotation.fill_colot = feature_point_color
-        points_annotation.thickness = 2.0
-
-        img_annotation_msg.points = [points_annotation]
-        img_annotation_msg.circles = []
-
-        return img_annotation_msg
+        return ImgFeatureDetector.__package_keypoints_to_protobuf(img_timestamp, keypoints)
 
     def __detect_features(self, image: Union[cv2.Mat, np.ndarray]) \
         -> Union[List[cv2.KeyPoint], None]:
@@ -82,4 +60,36 @@ class ImgFeatureDetector(IOElement):
         return keypoints
 
     @staticmethod
-    def package_keypoints_to_protobuf(img_timestamp, )
+    def __package_keypoints_to_protobuf(img_timestamp,
+                                        keypoints: List[cv2.KeyPoint]) -> ImageAnnotation:
+        '''
+        Package found keypoints into message to send
+
+        Parameters
+        ----------
+        - `img_timestamp`: Timestamp of taken image
+        - `keypoints` (`List[cv2.KeyPoint]`): List of found keypoints
+
+        Returns
+        -------
+        - `ImageAnnotation`: ImageAnnotation protobuf message
+        '''
+        img_annotation_msg = ImageAnnotation()
+        feature_point_color = Color(r=1., g=0., b=0., a=0.)
+        points = []
+        for keypoint in keypoints:
+            points.append(Point2(x=keypoint.pt[0], y=keypoint.pt[1]))
+
+        points_annotation = PointsAnnotation()
+        points_annotation.timestamp = img_timestamp
+        points_annotation.type = 'POINTS'
+        points_annotation.points = points
+        points_annotation.outline_color = feature_point_color
+        points_annotation.outline_colors = [feature_point_color] * len(points)
+        points_annotation.fill_colot = feature_point_color
+        points_annotation.thickness = 2.0
+
+        img_annotation_msg.points = [points_annotation]
+        img_annotation_msg.circles = []
+
+        return img_annotation_msg
