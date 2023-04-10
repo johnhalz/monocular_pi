@@ -4,10 +4,14 @@ from typing import Dict, Union, List
 import numpy as np
 import cv2
 
-from messages.img_annotation_msg import ImageAnnotation
-from messages.points_annotation_msg import PointsAnnotation
-from messages.point2_msg import Point2
-from messages.color_msg import Color
+from google.protobuf.timestamp_pb2 import Timestamp
+
+from messages import (
+    ImageAnnotations,
+    PointsAnnotation,
+    Point2,
+    Color
+)
 
 from .io_element import IOElement
 
@@ -18,10 +22,10 @@ class ImgFeatureDetector(IOElement):
     def __init__(self, name: str = 'Feature Detector', topic: str = None) -> None:
         super().__init__(name, topic)
 
-        # Setup freak detector
-        self.detector = cv2.xfeatures2d.FREAK_create()
+        # Setup ORB feature detector
+        self.detector = cv2.ORB_create()
 
-    def _stream_task(self) -> Union[Dict[str, ImageAnnotation], ImageAnnotation, None]:
+    def _stream_task(self) -> Union[Dict[str, ImageAnnotations], ImageAnnotations, None]:
         '''
         Get latest input message and detect features in image.
         '''
@@ -60,36 +64,35 @@ class ImgFeatureDetector(IOElement):
         return keypoints
 
     @staticmethod
-    def __package_keypoints_to_protobuf(img_timestamp,
-                                        keypoints: List[cv2.KeyPoint]) -> ImageAnnotation:
+    def __package_keypoints_to_protobuf(img_timestamp: Timestamp,
+                                        keypoints: List[cv2.KeyPoint]) -> ImageAnnotations:
         '''
         Package found keypoints into message to send
 
         Parameters
         ----------
-        - `img_timestamp`: Timestamp of taken image
+        - `img_timestamp` (`Timestamp`): Timestamp of taken image
         - `keypoints` (`List[cv2.KeyPoint]`): List of found keypoints
 
         Returns
         -------
-        - `ImageAnnotation`: ImageAnnotation protobuf message
+        - `ImageAnnotations`: ImageAnnotation protobuf message
         '''
-        img_annotation_msg = ImageAnnotation()
+        img_annotation_msg = ImageAnnotations()
         feature_point_color = Color(r=1., g=0., b=0., a=0.)
         points = []
         for keypoint in keypoints:
             points.append(Point2(x=keypoint.pt[0], y=keypoint.pt[1]))
 
         points_annotation = PointsAnnotation()
-        points_annotation.timestamp = img_timestamp
+        points_annotation.timestamp.CopyFrom(img_timestamp)
         points_annotation.type = 'POINTS'
-        points_annotation.points = points
-        points_annotation.outline_color = feature_point_color
-        points_annotation.outline_colors = [feature_point_color] * len(points)
-        points_annotation.fill_colot = feature_point_color
+        points_annotation.points.extend(points)
+        points_annotation.outline_color.CopyFrom(feature_point_color)
+        points_annotation.outline_colors.extend([feature_point_color] * len(points))
+        points_annotation.fill_color.CopyFrom(feature_point_color)
         points_annotation.thickness = 2.0
 
-        img_annotation_msg.points = [points_annotation]
-        img_annotation_msg.circles = []
+        img_annotation_msg.points.extend([points_annotation])
 
         return img_annotation_msg
