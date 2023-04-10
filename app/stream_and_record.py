@@ -7,7 +7,7 @@ from sys import path
 path.append(Path(__file__).parents[1].as_posix())
 
 from src.sensors import IMU, Camera
-from src.io_element import Recorder, LogHandler
+from src.io_element import Recorder, LogHandler, ImgFeatureDetector
 
 # pylint: disable=missing-function-docstring
 def main():
@@ -21,10 +21,15 @@ def main():
     camera = Camera(name='raspi-cam')
     imu = IMU(name='bno085')
 
+    # Create feature detector instance
+    detector = ImgFeatureDetector(topic='orb_features')
+
     # Create recorder instance and add data queues
     recorder = Recorder(filepath=Path.home()/'data/test.mcap', with_date=True)
     camera.add_subscriber(recorder)
+    camera.add_subscriber(detector)
     imu.add_subscriber(recorder)
+    detector.add_subscriber(recorder)
     log_handler.add_subscriber(recorder)
 
     # Connect to sensors
@@ -35,6 +40,7 @@ def main():
     recorder.start_stream()
     camera.start_stream()
     imu.start_stream()
+    detector.start_stream()
 
     sleep(2)
 
@@ -42,6 +48,7 @@ def main():
     camera.stop_stream()
     imu.stop_stream()
     recorder.stop_stream()
+    detector.stop_stream()
 
     # Disconnect from sensors
     camera.disconnect()
