@@ -54,7 +54,7 @@ class Recorder(IOElement):
         topic, message = self.input_queue.get()
         writer.write_message(
             message = message,
-            topic=topic,
-            log_time=self.timestamp.ToNanoseconds(),
-            publish_time=message.timestamp.ToNanoseconds()
+            topic = topic,
+            log_time = self.timestamp.ToNanoseconds(),
+            publish_time = message.timestamp.ToNanoseconds()
         )
