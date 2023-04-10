@@ -1,5 +1,6 @@
 '''IOElement class module'''
 import logging
+from typing import Dict, Union
 import threading
 from queue import Queue
 
@@ -46,7 +47,11 @@ class IOElement:
         while not self.stop_flag:
             message = self._stream_task()
             if message is not None:
-                self._publish_to_subscribers(message)
+                if isinstance(message, dict):
+                    for key, msg in message.items():
+                        self._publish_to_subscribers(msg, topic=f'{self.topic}/{key}')
+                elif isinstance(message, Message):
+                    self._publish_to_subscribers(message)
 
     async def _a_streaming_loop(self) -> None:
         '''Method to perform while loop calling _stream_task() method'''
@@ -63,7 +68,12 @@ class IOElement:
         '''Add another IOElement instance as a subscriber.'''
         self.subscribers.append(other_io_element)
 
-    def _publish_to_subscribers(self, message: Message) -> None:
+    def _publish_to_subscribers(self, message: Message, topic: str = None) -> None:
         '''Publish messages to subscribers.'''
+        # Define topic
+        if topic is None:
+            topic = self.topic
+
+        # Publish message to all subscribers
         for subscriber in self.subscribers:
-            subscriber.input_queue.put((self.topic, message))
+            subscriber.input_queue.put((topic, message))

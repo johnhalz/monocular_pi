@@ -1,5 +1,6 @@
 '''IMU sensor module'''
 import logging
+from typing import Dict
 from serial import Serial
 
 import numpy as np
@@ -11,7 +12,7 @@ from sys import path
 path.append(Path(__file__).parents[1].as_posix())
 
 from io_element import Sensor, Message
-from messages import IMUMessage
+from messages import Vector3, Quaternion
 
 # pylint: disable=too-few-public-methods
 class IMU(Sensor):
@@ -38,7 +39,7 @@ class IMU(Sensor):
         except Exception as exc:
             raise ConnectionError(f'{self.name}: Unable to connect.') from exc
 
-    def _stream_task(self) -> Message:
+    def _stream_task(self) -> Dict[str, Message]:
         '''
         Read data from IMU, take timestamp and create protobuf message
 
@@ -50,27 +51,44 @@ class IMU(Sensor):
         yaw, pitch, roll, x_accel, y_accel, z_accel = self.read_source.heading
         logging.debug(f'{self.name}: Got IMU data')
         self.orientation.from_euler('zyx', [yaw, pitch, roll], degrees=True)
-        return self._compile_message(acceleration=np.array([x_accel, y_accel, z_accel]))
+        quat_msg = self._compile_quaternion_data()
+        acc_msg = self._compile_acceleration_data(
+            acceleration=np.array([x_accel, y_accel, z_accel])
+        )
+        return {'accel': acc_msg, 'orientation': quat_msg}
 
-    def _compile_message(self, acceleration: np.ndarray) -> IMUMessage:
+    def _compile_acceleration_data(self, acceleration: np.ndarray) -> Vector3:
         '''
-        Compile data into protobuffer message
+        Compile acceleration data to timestamped Vector3 protobuf message.
 
         Parameters
         ----------
-        - `acceleration` (`np.ndarray`): Acceleration data
+        - `acceleration` (`np.ndarray`): Acceleration array
 
         Returns
         -------
-        -`IMUMessage`: IMUMessage (protobuf message)
+        - `Vector3`: Vector3 protobuf message instance
         '''
-        quaternion = self.orientation.as_quat()
-        return IMUMessage(
-            accel_x = acceleration[0],
-            accel_y = acceleration[1],
-            accel_z = acceleration[2],
-            orient_w = quaternion[0],
-            orient_i = quaternion[1],
-            orient_j = quaternion[2],
-            orient_k = quaternion[3]
-        )
+        message = Vector3()
+        message.x = acceleration[0]
+        message.y = acceleration[1]
+        message.z = acceleration[2]
+        message.timestamp.CopyFrom(self.timestamp)
+        return message
+
+    def _compile_quaternion_data(self) -> Quaternion:
+        '''
+        Compile orientation data to timestamped Quaternion protobuf message.
+
+        Returns
+        -------
+        - `Quaternion`: Quaternion protobuf message instance
+        '''
+        quat = self.orientation.as_quat()
+        message = Quaternion()
+        message.w = quat[0]
+        message.x = quat[1]
+        message.y = quat[2]
+        message.z = quat[3]
+        message.timestamp.CopyFrom(self.timestamp)
+        return message

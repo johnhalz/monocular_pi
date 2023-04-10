@@ -1,5 +1,6 @@
 '''Sensor class module'''
 import logging
+from typing import Union, Dict
 
 from .io_element import IOElement, Message
 
@@ -44,9 +45,9 @@ class Sensor(IOElement):
         except Exception as exc:
             raise ConnectionError(f'{self.name}: Unable to close connection.') from exc
 
-    def _stream_task(self) -> Message|None:
+    def _stream_task(self) -> Union[Dict[str, Message], Message, None]:
         '''Method of the task to perform during the datastream process.'''
         raise NotImplementedError('Please add this function to your child class.')
 
-    def _compile_message(self, data: any) -> Message|None:
+    def _compile_message(self, data: any) -> Union[Message, None]:
         '''Compile sensor data into message'''
