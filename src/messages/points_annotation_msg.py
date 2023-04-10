@@ -11,8 +11,8 @@ from google.protobuf import symbol_database as _symbol_database
 _sym_db = _symbol_database.Default()
 
 
-import color_msg_pb2 as color__msg__pb2
-import point2_msg_pb2 as point2__msg__pb2
+import src.messages.color_msg as color__msg__pb2
+import src.messages.point2_msg as point2__msg__pb2
 from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
 
 
