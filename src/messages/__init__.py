@@ -2,3 +2,8 @@ from .compressed_img_msg import CompressedImage
 from .log_msg import Log
 from .quaternion_msg import Quaternion
 from .vector3d_msg import Vector3
+from .circle_annotation_msg import CircleAnnotation
+from .points_annotation_msg import PointsAnnotation
+from .color_msg import Color
+from .img_annotation_msg import ImageAnnotations
+from .point2_msg import Point2
