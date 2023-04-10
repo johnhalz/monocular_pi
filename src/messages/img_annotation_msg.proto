@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+import "circle_annotation_msg.proto";
+import "points_annotation_msg.proto";
+
+package foxglove;
+
+// Array of annotations for a 2D image
+message ImageAnnotations {
+  // Circle annotations
+  repeated foxglove.CircleAnnotation circles = 1;
+
+  // Points annotations
+  repeated foxglove.PointsAnnotation points = 2;
+}
