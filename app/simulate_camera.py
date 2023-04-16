@@ -18,30 +18,38 @@ def main():
     log.addHandler(log_handler)
 
     # Create sensor instances
-    camera = Camera(name='raspi-cam',
+    camera_0 = Camera(name='cam_0',
                     topic='image',
-                    simulated=Path.home() / 'Downloads/kitti/05/image_1/output.mp4')
+                    simulated=Path.home() / 'Downloads/kitti/05/cam_0.mp4')
+    camera_1 = Camera(name='cam_1',
+                    topic='image',
+                    simulated=Path.home() / 'Downloads/kitti/05/cam_1.mp4')
 
     # Create recorder instance and add data queues
     recorder = Recorder(filepath=Path.home()/'data/test.mcap', with_date=True)
-    camera.add_subscriber(recorder)
+    camera_0.add_subscriber(recorder)
+    camera_1.add_subscriber(recorder)
     log_handler.add_subscriber(recorder)
 
     # Connect to sensors
-    camera.connect()
+    camera_0.connect()
+    camera_1.connect()
 
     # Start streaming data from sensors
     recorder.start_stream()
-    camera.start_stream()
+    camera_0.start_stream()
+    camera_1.start_stream()
 
-    sleep(10)
+    sleep(5)
 
     # Stop stream from sensors
-    camera.stop_stream()
+    camera_0.stop_stream()
+    camera_1.stop_stream()
     recorder.stop_stream()
 
     # Disconnect from sensors
-    camera.disconnect()
+    camera_0.disconnect()
+    camera_1.disconnect()
 
 if __name__ == '__main__':
     main()
