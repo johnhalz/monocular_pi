@@ -36,7 +36,7 @@ class Camera(Sensor):
         -------
         -`Message`: CompressedImage (protobuf message)
         '''
-        # If simulated- Simulate framerate of input video
+        # If Simulated - Simulate framerate of input video
         if self.simulated:
             sleep(1./self.sim_fps)
 
