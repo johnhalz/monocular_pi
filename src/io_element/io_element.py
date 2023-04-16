@@ -44,7 +44,7 @@ class IOElement:
             if message is not None:
                 if isinstance(message, dict):
                     for key, msg in message.items():
-                        self._publish_to_subscribers(msg, topic=f'{self.topic}/{key}')
+                        self._publish_to_subscribers(msg, topic=f'{self.name}/{self.topic}/{key}')
                 elif isinstance(message, Message):
                     self._publish_to_subscribers(message)
 
@@ -60,7 +60,7 @@ class IOElement:
         '''Publish messages to subscribers.'''
         # Define topic
         if topic is None:
-            topic = self.topic
+            topic = f'{self.name}/{self.topic}'
 
         # Publish message to all subscribers
         for subscriber in self.subscribers:
