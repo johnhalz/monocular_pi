@@ -47,7 +47,7 @@ class Camera(Sensor):
 
         logging.debug(f'{self.name}: Got camera data')
 
-        return {'image': self._compile_message(image)}
+        return self._compile_message(image)
 
     def _compile_message(self, img_data: np.ndarray, encoding: str = 'jpeg') -> CompressedImage:
         '''
